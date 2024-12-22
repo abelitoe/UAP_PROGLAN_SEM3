@@ -5,6 +5,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class HotelBookingSystem {
     private static final ArrayList<String[]> kamarList = new ArrayList<>();
@@ -207,17 +208,41 @@ public class HotelBookingSystem {
 
             int result = JOptionPane.showConfirmDialog(tamuFrame, inputPanel, "Tambah Tamu", JOptionPane.OK_CANCEL_OPTION);
             if (result == JOptionPane.OK_OPTION) {
-                String[] newTamu = {
-                        namaField.getText(),
-                        kartuKreditField.getText(),
-                        alamatField.getText(),
-                        negaraField.getText(),
-                        jenisKelaminField.getText(),
-                        nomorTeleponField.getText()
-                };
-                model.addRow(newTamu);
-                tamuList.add(newTamu);
-                saveDataToFile();
+                try {
+                    String nama = namaField.getText();
+                    if (!nama.matches("[a-zA-Z ]+")) {
+                        throw new IllegalArgumentException("Nama hanya boleh berisi huruf.");
+                    }
+
+                    String kartuKredit = kartuKreditField.getText().trim(); // Menghapus spasi ekstra di awal/akhir
+                    if (!kartuKredit.matches("^\\d{12}$")) { // Menambahkan validasi null
+                        throw new IllegalArgumentException("Kartu Kredit harus terdiri dari 12 digit angka.");
+                    }
+
+                    String jenisKelamin = jenisKelaminField.getText();
+                    if (!jenisKelamin.equalsIgnoreCase("Laki-Laki") && !jenisKelamin.equalsIgnoreCase("Perempuan")) {
+                        throw new IllegalArgumentException("Jenis Kelamin harus Laki-Laki atau Perempuan.");
+                    }
+
+                    String nomorTelepon = nomorTeleponField.getText();
+                    if (!nomorTelepon.matches("\\d{10,12}")) {
+                        throw new IllegalArgumentException("Nomor Telepon harus terdiri dari 10 hingga 12 digit angka.");
+                    }
+
+                    String[] newTamu = {
+                            nama,
+                            kartuKredit,
+                            alamatField.getText(),
+                            negaraField.getText(),
+                            jenisKelamin,
+                            nomorTelepon
+                    };
+                    model.addRow(newTamu);
+                    tamuList.add(newTamu);
+                    saveDataToFile();
+                } catch (IllegalArgumentException ex) {
+                    JOptionPane.showMessageDialog(tamuFrame, ex.getMessage(), "Input Error", JOptionPane.ERROR_MESSAGE);
+                }
             }
         });
 
@@ -247,21 +272,46 @@ public class HotelBookingSystem {
 
                 int result = JOptionPane.showConfirmDialog(tamuFrame, inputPanel, "Edit Tamu", JOptionPane.OK_CANCEL_OPTION);
                 if (result == JOptionPane.OK_OPTION) {
-                    model.setValueAt(namaField.getText(), selectedRow, 0);
-                    model.setValueAt(kartuKreditField.getText(), selectedRow, 1);
-                    model.setValueAt(alamatField.getText(), selectedRow, 2);
-                    model.setValueAt(negaraField.getText(), selectedRow, 3);
-                    model.setValueAt(jenisKelaminField.getText(), selectedRow, 4);
-                    model.setValueAt(nomorTeleponField.getText(), selectedRow, 5);
-                    tamuList.set(selectedRow, new String[]{
-                            namaField.getText(),
-                            kartuKreditField.getText(),
-                            alamatField.getText(),
-                            negaraField.getText(),
-                            jenisKelaminField.getText(),
-                            nomorTeleponField.getText()
-                    });
-                    saveDataToFile();
+                    try {
+                        String nama = namaField.getText();
+                        if (!nama.matches("[a-zA-Z ]+")) {
+                            throw new IllegalArgumentException("Nama hanya boleh berisi huruf.");
+                        }
+
+                        String kartuKredit = kartuKreditField.getText();
+                        if (!kartuKredit.matches("\\d{12}")) {
+                            throw new IllegalArgumentException("Kartu Kredit harus terdiri dari 12 digit angka.");
+                        }
+
+                        String jenisKelamin = jenisKelaminField.getText();
+                        if (!jenisKelamin.equalsIgnoreCase("Laki-Laki") && !jenisKelamin.equalsIgnoreCase("Perempuan")) {
+                            throw new IllegalArgumentException("Jenis Kelamin harus Laki-Laki atau Perempuan.");
+                        }
+
+                        String nomorTelepon = nomorTeleponField.getText();
+                        if (!nomorTelepon.matches("\\d{10,12}")) {
+                            throw new IllegalArgumentException("Nomor Telepon harus terdiri dari 10 hingga 12 digit angka.");
+                        }
+
+                        model.setValueAt(nama, selectedRow, 0);
+                        model.setValueAt(kartuKredit, selectedRow, 1);
+                        model.setValueAt(alamatField.getText(), selectedRow, 2);
+                        model.setValueAt(negaraField.getText(), selectedRow, 3);
+                        model.setValueAt(jenisKelamin, selectedRow, 4);
+                        model.setValueAt(nomorTelepon, selectedRow, 5);
+
+                        tamuList.set(selectedRow, new String[]{
+                                nama,
+                                kartuKredit,
+                                alamatField.getText(),
+                                negaraField.getText(),
+                                jenisKelamin,
+                                nomorTelepon
+                        });
+                        saveDataToFile();
+                    } catch (IllegalArgumentException ex) {
+                        JOptionPane.showMessageDialog(tamuFrame, ex.getMessage(), "Input Error", JOptionPane.ERROR_MESSAGE);
+                    }
                 }
             } else {
                 JOptionPane.showMessageDialog(tamuFrame, "Pilih baris yang ingin diedit");
@@ -287,11 +337,13 @@ public class HotelBookingSystem {
         tamuFrame.add(buttonPanel, BorderLayout.SOUTH);
         tamuFrame.setVisible(true);
     }
+
+
     private static void showKamarList() {
         JFrame kamarFrame = new JFrame("Data Kamar");
         kamarFrame.setSize(800, 400);
 
-        String[] columnNames = {"Kode Kamar", "Lantai", "Nomor Kamar", "Tipe Kamar", "Harga per Malam"};
+        String[] columnNames = {"Kode Kamar", "Lantai", "Nomor Kamar", "Tipe Kamar", "Harga per Malam", "Gambar"};
         DefaultTableModel model = new DefaultTableModel(columnNames, 0);
         JTable table = new JTable(model);
 
@@ -305,6 +357,7 @@ public class HotelBookingSystem {
         JButton editButton = new JButton("Edit");
         JButton addButton = new JButton("Tambah");
         JButton deleteButton = new JButton("Hapus");
+        JButton viewImageButton = new JButton("Lihat Gambar");
 
         addButton.addActionListener(e -> {
             JTextField kodeField = new JTextField();
@@ -315,6 +368,20 @@ public class HotelBookingSystem {
             JLabel hargaLabel = new JLabel("Harga per Malam:");
             JTextField hargaField = new JTextField();
             hargaField.setEditable(false);
+
+            JButton uploadButton = new JButton("Upload Gambar");
+            JLabel imagePathLabel = new JLabel("Belum ada gambar");
+
+            final String[] selectedImagePath = {null};
+
+            uploadButton.addActionListener(uploadEvent -> {
+                JFileChooser fileChooser = new JFileChooser();
+                int returnValue = fileChooser.showOpenDialog(null);
+                if (returnValue == JFileChooser.APPROVE_OPTION) {
+                    selectedImagePath[0] = fileChooser.getSelectedFile().getAbsolutePath();
+                    imagePathLabel.setText(fileChooser.getSelectedFile().getName());
+                }
+            });
 
             tipeField.addActionListener(event -> {
                 String tipe = (String) tipeField.getSelectedItem();
@@ -327,7 +394,7 @@ public class HotelBookingSystem {
                 }
             });
 
-            JPanel inputPanel = new JPanel(new GridLayout(5, 2));
+            JPanel inputPanel = new JPanel(new GridLayout(6, 2));
             inputPanel.add(new JLabel("Kode Kamar:"));
             inputPanel.add(kodeField);
             inputPanel.add(new JLabel("Lantai:"));
@@ -338,21 +405,60 @@ public class HotelBookingSystem {
             inputPanel.add(tipeField);
             inputPanel.add(hargaLabel);
             inputPanel.add(hargaField);
+            inputPanel.add(uploadButton);
+            inputPanel.add(imagePathLabel);
 
-            int result = JOptionPane.showConfirmDialog(kamarFrame, inputPanel, "Tambah Kamar", JOptionPane.OK_CANCEL_OPTION);
+            int result = JOptionPane.showConfirmDialog(null, inputPanel, "Tambah Kamar", JOptionPane.OK_CANCEL_OPTION);
             if (result == JOptionPane.OK_OPTION) {
-                String[] newKamar = {
-                        kodeField.getText(),
-                        lantaiField.getText(),
-                        nomorField.getText(),
-                        (String) tipeField.getSelectedItem(),
-                        hargaField.getText()
-                };
-                model.addRow(newKamar);
-                kamarList.add(newKamar);
-                saveDataToFile();
+                try {
+                    // Validasi Kode Kamar
+                    String kodeKamar = kodeField.getText().trim();
+                    if (!kodeKamar.matches("\\d{3}") || Integer.parseInt(kodeKamar) < 101 || Integer.parseInt(kodeKamar) > 410) {
+                        throw new IllegalArgumentException("Kode Kamar harus berupa angka 3 digit (101-410).");
+                    }
+
+                    // Validasi Lantai
+                    String lantai = lantaiField.getText().trim();
+                    if (!lantai.matches("\\d") || Integer.parseInt(lantai) < 1 || Integer.parseInt(lantai) > 4) {
+                        throw new IllegalArgumentException("Lantai harus berupa angka (1-4).");
+                    }
+
+                    // Validasi Nomor Kamar
+                    String nomorKamar = nomorField.getText().trim();
+                    if (!nomorKamar.matches("\\d{2}") || Integer.parseInt(nomorKamar) < 1 || Integer.parseInt(nomorKamar) > 10) {
+                        throw new IllegalArgumentException("Nomor Kamar harus berupa angka 2 digit (01-10).");
+                    }
+
+                    // Periksa apakah Kode Kamar sudah ada
+                    boolean isDuplicate = kamarList.stream().anyMatch(kamar ->
+                            kamar[0].equals(kodeKamar) ||
+                                    (kamar[1].equals(lantai) && kamar[2].equals(nomorKamar))
+                    );
+
+                    if (isDuplicate) {
+                        throw new IllegalArgumentException("Kode Kamar, Lantai, atau Nomor Kamar sudah terisi sebelumnya.");
+                    }
+
+                    // Jika validasi berhasil, tambahkan data baru ke tabel
+                    String[] newKamar = {
+                            kodeKamar,
+                            lantai,
+                            nomorKamar,
+                            (String) tipeField.getSelectedItem(),
+                            hargaField.getText(),
+                            selectedImagePath[0] != null ? selectedImagePath[0] : "Tidak ada gambar"
+                    };
+                    model.addRow(newKamar);
+                    kamarList.add(newKamar);
+                    saveDataToFile();
+
+                } catch (IllegalArgumentException ex) {
+                    JOptionPane.showMessageDialog(null, ex.getMessage(), "Kesalahan Input", JOptionPane.ERROR_MESSAGE);
+                }
             }
         });
+
+
         editButton.addActionListener(e -> {
             int selectedRow = table.getSelectedRow();
             if (selectedRow != -1) {
@@ -361,6 +467,7 @@ public class HotelBookingSystem {
                 String nomorKamar = (String) model.getValueAt(selectedRow, 2);
                 String tipeKamar = (String) model.getValueAt(selectedRow, 3);
                 String harga = (String) model.getValueAt(selectedRow, 4);
+                String gambar = (String) model.getValueAt(selectedRow, 5);
 
                 JTextField kodeField = new JTextField(kodeKamar);
                 JTextField lantaiField = new JTextField(lantai);
@@ -371,6 +478,20 @@ public class HotelBookingSystem {
                 JLabel hargaLabel = new JLabel("Harga per Malam:");
                 JTextField hargaField = new JTextField(harga);
                 hargaField.setEditable(false);
+
+                JButton uploadButton = new JButton("Upload Gambar");
+                JLabel imagePathLabel = new JLabel(gambar.equals("Tidak ada gambar") ? "Belum ada gambar" : gambar);
+
+                final String[] selectedImagePath = {gambar.equals("Tidak ada gambar") ? null : gambar};
+
+                uploadButton.addActionListener(uploadEvent -> {
+                    JFileChooser fileChooser = new JFileChooser();
+                    int returnValue = fileChooser.showOpenDialog(null);
+                    if (returnValue == JFileChooser.APPROVE_OPTION) {
+                        selectedImagePath[0] = fileChooser.getSelectedFile().getAbsolutePath();
+                        imagePathLabel.setText(fileChooser.getSelectedFile().getName());
+                    }
+                });
 
                 tipeField.addActionListener(event -> {
                     String tipe = (String) tipeField.getSelectedItem();
@@ -383,7 +504,7 @@ public class HotelBookingSystem {
                     }
                 });
 
-                JPanel inputPanel = new JPanel(new GridLayout(5, 2));
+                JPanel inputPanel = new JPanel(new GridLayout(6, 2));
                 inputPanel.add(new JLabel("Kode Kamar:"));
                 inputPanel.add(kodeField);
                 inputPanel.add(new JLabel("Lantai:"));
@@ -394,29 +515,66 @@ public class HotelBookingSystem {
                 inputPanel.add(tipeField);
                 inputPanel.add(hargaLabel);
                 inputPanel.add(hargaField);
+                inputPanel.add(uploadButton);
+                inputPanel.add(imagePathLabel);
 
                 int result = JOptionPane.showConfirmDialog(kamarFrame, inputPanel, "Edit Kamar", JOptionPane.OK_CANCEL_OPTION);
                 if (result == JOptionPane.OK_OPTION) {
-                    model.setValueAt(kodeField.getText(), selectedRow, 0);
-                    model.setValueAt(lantaiField.getText(), selectedRow, 1);
-                    model.setValueAt(nomorField.getText(), selectedRow, 2);
-                    model.setValueAt(tipeField.getSelectedItem(), selectedRow, 3);
-                    model.setValueAt(hargaField.getText(), selectedRow, 4);
+                    try {
+                        // Validasi Kode Kamar
+                        String newKodeKamar = kodeField.getText().trim();
+                        if (!newKodeKamar.matches("\\d{3}") || Integer.parseInt(newKodeKamar) < 101 || Integer.parseInt(newKodeKamar) > 410) {
+                            throw new IllegalArgumentException("Kode Kamar harus berupa angka 3 digit (101-410).");
+                        }
 
-                    kamarList.set(selectedRow, new String[]{
-                            kodeField.getText(),
-                            lantaiField.getText(),
-                            nomorField.getText(),
-                            (String) tipeField.getSelectedItem(),
-                            hargaField.getText()
-                    });
-                    saveDataToFile();
+                        // Validasi Lantai
+                        String newLantai = lantaiField.getText().trim();
+                        if (!newLantai.matches("\\d") || Integer.parseInt(newLantai) < 1 || Integer.parseInt(newLantai) > 4) {
+                            throw new IllegalArgumentException("Lantai harus berupa angka (1-4).");
+                        }
+
+                        // Validasi Nomor Kamar
+                        String newNomorKamar = nomorField.getText().trim();
+                        if (!newNomorKamar.matches("\\d{2}") || Integer.parseInt(newNomorKamar) < 1 || Integer.parseInt(newNomorKamar) > 10) {
+                            throw new IllegalArgumentException("Nomor Kamar harus berupa angka 2 digit (01-10).");
+                        }
+
+                        // Periksa apakah Kode Kamar atau kombinasi Lantai dan Nomor Kamar sudah ada (kecuali baris yang sedang diedit)
+                        boolean isDuplicate = kamarList.stream().anyMatch(kamar ->
+                                !Arrays.equals(kamarList.get(selectedRow), kamar) &&
+                                        (kamar[0].equals(newKodeKamar) || (kamar[1].equals(newLantai) && kamar[2].equals(newNomorKamar)))
+                        );
+
+                        if (isDuplicate) {
+                            throw new IllegalArgumentException("Kode Kamar, Lantai, atau Nomor Kamar sudah terisi sebelumnya.");
+                        }
+
+                        // Jika validasi berhasil, perbarui data di tabel
+                        model.setValueAt(newKodeKamar, selectedRow, 0);
+                        model.setValueAt(newLantai, selectedRow, 1);
+                        model.setValueAt(newNomorKamar, selectedRow, 2);
+                        model.setValueAt(tipeField.getSelectedItem(), selectedRow, 3);
+                        model.setValueAt(hargaField.getText(), selectedRow, 4);
+                        model.setValueAt(selectedImagePath[0] != null ? selectedImagePath[0] : "Tidak ada gambar", selectedRow, 5);
+
+                        kamarList.set(selectedRow, new String[]{
+                                newKodeKamar,
+                                newLantai,
+                                newNomorKamar,
+                                (String) tipeField.getSelectedItem(),
+                                hargaField.getText(),
+                                selectedImagePath[0] != null ? selectedImagePath[0] : "Tidak ada gambar"
+                        });
+                        saveDataToFile();
+
+                    } catch (IllegalArgumentException ex) {
+                        JOptionPane.showMessageDialog(kamarFrame, ex.getMessage(), "Kesalahan Input", JOptionPane.ERROR_MESSAGE);
+                    }
                 }
             } else {
                 JOptionPane.showMessageDialog(kamarFrame, "Pilih baris yang ingin diedit terlebih dahulu.", "Kesalahan", JOptionPane.WARNING_MESSAGE);
             }
         });
-
 
         deleteButton.addActionListener(e -> {
             int selectedRow = table.getSelectedRow();
@@ -429,9 +587,29 @@ public class HotelBookingSystem {
             }
         });
 
+        viewImageButton.addActionListener(e -> {
+            int selectedRow = table.getSelectedRow();
+            if (selectedRow != -1) {
+                String imagePath = (String) model.getValueAt(selectedRow, 5);
+                if (imagePath != null && !imagePath.equals("Tidak ada gambar")) {
+                    ImageIcon imageIcon = new ImageIcon(imagePath);
+                    Image image = imageIcon.getImage().getScaledInstance(300, 300, Image.SCALE_SMOOTH);
+                    ImageIcon scaledIcon = new ImageIcon(image);
+
+                    JLabel imageLabel = new JLabel(scaledIcon);
+                    JOptionPane.showMessageDialog(kamarFrame, imageLabel, "Gambar Kamar", JOptionPane.PLAIN_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(kamarFrame, "Tidak ada gambar untuk kamar ini");
+                }
+            } else {
+                JOptionPane.showMessageDialog(kamarFrame, "Pilih baris untuk melihat gambar");
+            }
+        });
+
         buttonPanel.add(addButton);
         buttonPanel.add(editButton);
         buttonPanel.add(deleteButton);
+        buttonPanel.add(viewImageButton);
 
         kamarFrame.add(scrollPane, BorderLayout.CENTER);
         kamarFrame.add(buttonPanel, BorderLayout.SOUTH);
@@ -487,17 +665,59 @@ public class HotelBookingSystem {
 
             int result = JOptionPane.showConfirmDialog(pemesananFrame, inputPanel, "Tambah Pemesanan", JOptionPane.OK_CANCEL_OPTION);
             if (result == JOptionPane.OK_OPTION) {
-                String[] newPemesanan = {
-                        kodeField.getText(),
-                        namaField.getText(),
-                        nomorKamarField.getText(),
-                        checkInField.getText(),
-                        checkOutField.getText(),
-                        statusField.getText()
-                };
-                model.addRow(newPemesanan);
-                pemesananList.add(newPemesanan);
-                saveDataToFile();
+                try {
+                    // Validasi Kode Pemesanan
+                    String kodePemesanan = kodeField.getText().trim();
+                    if (!kodePemesanan.matches("([A-Z0-9]{4} ){3}[A-Z0-9]{4}")) {
+                        throw new IllegalArgumentException("Kode Pemesanan harus terdiri dari huruf kapital dan angka dengan format 4-4-4-4, contoh: HJ3W O1P4 CZMA Q1L9.");
+                    }
+
+                    // Validasi duplikasi Kode Pemesanan
+                    boolean kodeExists = pemesananList.stream().anyMatch(p -> p[0].equals(kodePemesanan));
+                    if (kodeExists) {
+                        throw new IllegalArgumentException("Kode Pemesanan sudah ada sebelumnya.");
+                    }
+
+                    // Validasi Nomor Kamar
+                    String nomorKamar = nomorKamarField.getText().trim();
+                    if (!nomorKamar.matches("\\d{1,2}") || Integer.parseInt(nomorKamar) < 1 || Integer.parseInt(nomorKamar) > 10) {
+                        throw new IllegalArgumentException("Nomor Kamar harus berupa angka dari 1 hingga 10.");
+                    }
+
+                    // Validasi duplikasi Nomor Kamar
+                    boolean nomorExists = pemesananList.stream().anyMatch(p -> p[2].equals(nomorKamar));
+                    if (nomorExists) {
+                        throw new IllegalArgumentException("Nomor Kamar sudah dipesan sebelumnya.");
+                    }
+
+                    // Validasi Check-in
+                    String checkIn = checkInField.getText().trim();
+                    if (!checkIn.matches("[0-9/\\-.: ]+")) {
+                        throw new IllegalArgumentException("Check-in hanya boleh mengandung angka dan simbol (contoh: 2023-12-31 14:00).");
+                    }
+
+                    // Validasi Check-out
+                    String checkOut = checkOutField.getText().trim();
+                    if (!checkOut.matches("[0-9/\\-.: ]+")) {
+                        throw new IllegalArgumentException("Check-out hanya boleh mengandung angka dan simbol (contoh: 2024-01-02 12:00).");
+                    }
+
+                    // Jika semua validasi lolos, tambahkan data ke tabel
+                    String[] newPemesanan = {
+                            kodePemesanan,
+                            namaField.getText().trim(),
+                            nomorKamar,
+                            checkIn,
+                            checkOut,
+                            statusField.getText().trim()
+                    };
+                    model.addRow(newPemesanan);
+                    pemesananList.add(newPemesanan);
+                    saveDataToFile();
+
+                } catch (IllegalArgumentException ex) {
+                    JOptionPane.showMessageDialog(pemesananFrame, ex.getMessage(), "Kesalahan Input", JOptionPane.ERROR_MESSAGE);
+                }
             }
         });
 
@@ -527,21 +747,66 @@ public class HotelBookingSystem {
 
                 int result = JOptionPane.showConfirmDialog(pemesananFrame, inputPanel, "Edit Pemesanan", JOptionPane.OK_CANCEL_OPTION);
                 if (result == JOptionPane.OK_OPTION) {
-                    model.setValueAt(kodeField.getText(), selectedRow, 0);
-                    model.setValueAt(namaField.getText(), selectedRow, 1);
-                    model.setValueAt(nomorKamarField.getText(), selectedRow, 2);
-                    model.setValueAt(checkInField.getText(), selectedRow, 3);
-                    model.setValueAt(checkOutField.getText(), selectedRow, 4);
-                    model.setValueAt(statusField.getText(), selectedRow, 5);
-                    pemesananList.set(selectedRow, new String[]{
-                            kodeField.getText(),
-                            namaField.getText(),
-                            nomorKamarField.getText(),
-                            checkInField.getText(),
-                            checkOutField.getText(),
-                            statusField.getText()
-                    });
-                    saveDataToFile();
+                    try {
+                        // Validasi Kode Pemesanan
+                        String kodePemesanan = kodeField.getText().trim();
+                        if (!kodePemesanan.matches("([A-Z0-9]{4} ){3}[A-Z0-9]{4}")) {
+                            throw new IllegalArgumentException("Kode Pemesanan harus terdiri dari huruf kapital dan angka dengan format 4-4-4-4, contoh: HJ3W O1P4 CZMA Q1L9.");
+                        }
+
+                        // Validasi duplikasi Kode Pemesanan (kecuali baris yang sedang diedit)
+                        boolean kodeExists = pemesananList.stream().anyMatch(p ->
+                                !Arrays.equals(pemesananList.get(selectedRow), p) && p[0].equals(kodePemesanan));
+                        if (kodeExists) {
+                            throw new IllegalArgumentException("Kode Pemesanan sudah ada sebelumnya.");
+                        }
+
+                        // Validasi Nomor Kamar
+                        String nomorKamar = nomorKamarField.getText().trim();
+                        if (!nomorKamar.matches("\\d{1,2}") || Integer.parseInt(nomorKamar) < 1 || Integer.parseInt(nomorKamar) > 10) {
+                            throw new IllegalArgumentException("Nomor Kamar harus berupa angka dari 1 hingga 10.");
+                        }
+
+                        // Validasi duplikasi Nomor Kamar (kecuali baris yang sedang diedit)
+                        boolean nomorExists = pemesananList.stream().anyMatch(p ->
+                                !Arrays.equals(pemesananList.get(selectedRow), p) && p[2].equals(nomorKamar));
+                        if (nomorExists) {
+                            throw new IllegalArgumentException("Nomor Kamar sudah dipesan sebelumnya.");
+                        }
+
+                        // Validasi Check-in
+                        String checkIn = checkInField.getText().trim();
+                        if (!checkIn.matches("[0-9/\\-.: ]+")) {
+                            throw new IllegalArgumentException("Check-in hanya boleh mengandung angka dan simbol (contoh: 2023-12-31 14:00).");
+                        }
+
+                        // Validasi Check-out
+                        String checkOut = checkOutField.getText().trim();
+                        if (!checkOut.matches("[0-9/\\-.: ]+")) {
+                            throw new IllegalArgumentException("Check-out hanya boleh mengandung angka dan simbol (contoh: 2024-01-02 12:00).");
+                        }
+
+                        // Jika semua validasi lolos, perbarui data di tabel
+                        model.setValueAt(kodePemesanan, selectedRow, 0);
+                        model.setValueAt(namaField.getText().trim(), selectedRow, 1);
+                        model.setValueAt(nomorKamar, selectedRow, 2);
+                        model.setValueAt(checkIn, selectedRow, 3);
+                        model.setValueAt(checkOut, selectedRow, 4);
+                        model.setValueAt(statusField.getText().trim(), selectedRow, 5);
+
+                        pemesananList.set(selectedRow, new String[]{
+                                kodePemesanan,
+                                namaField.getText().trim(),
+                                nomorKamar,
+                                checkIn,
+                                checkOut,
+                                statusField.getText().trim()
+                        });
+                        saveDataToFile();
+
+                    } catch (IllegalArgumentException ex) {
+                        JOptionPane.showMessageDialog(pemesananFrame, ex.getMessage(), "Kesalahan Input", JOptionPane.ERROR_MESSAGE);
+                    }
                 }
             } else {
                 JOptionPane.showMessageDialog(pemesananFrame, "Pilih baris yang ingin diedit");
