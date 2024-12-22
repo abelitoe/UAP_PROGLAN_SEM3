@@ -1,0 +1,8 @@
+Data Kamar:
+101,1,01,Ekonomi,200000
+
+Data Tamu:
+John Doe,123456789012,Alamat,Indonesia,Laki-Laki,081234567890
+
+Data Pemesanan:
+KODE1234,John Doe,01,2024-01-01,2024-01-05,Confirmed
