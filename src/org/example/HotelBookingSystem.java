@@ -71,15 +71,22 @@ public class HotelBookingSystem {
         loginFrame.setSize(400, 400);
 
         JPanel loginPanel = new JPanel(new GridBagLayout());
+        loginPanel.setBackground(new Color(75, 74, 103)); // Warna Independence (#4B4A67)
+
         GridBagConstraints c = new GridBagConstraints();
 
         JLabel titleLabel = new JLabel("Sistem Booking Hotel");
         titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        titleLabel.setForeground(Color.WHITE); // Teks jadi putih agar kontras
 
         JLabel usernameLabel = new JLabel("Username");
+        usernameLabel.setForeground(Color.WHITE); // Teks jadi putih agar kontras
+
         JTextField usernameField = new JTextField(15);
 
         JLabel passwordLabel = new JLabel("Password");
+        passwordLabel.setForeground(Color.WHITE); // Teks jadi putih agar kontras
+
         JPasswordField passwordField = new JPasswordField(15);
 
         JButton loginButton = new JButton("Login");
@@ -108,7 +115,6 @@ public class HotelBookingSystem {
         c.gridx = 0;
         c.gridy++;
         c.gridwidth = 2;
-        loginPanel.add(loginButton, c);
 
         loginButton.addActionListener(e -> {
             String username = usernameField.getText();
@@ -122,6 +128,7 @@ public class HotelBookingSystem {
             }
         });
 
+        loginPanel.add(loginButton, c);
         loginFrame.add(loginPanel);
         loginFrame.setVisible(true);
     }
@@ -132,11 +139,14 @@ public class HotelBookingSystem {
         mainMenuFrame.setSize(400, 300);
 
         JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.setBackground(new Color(75, 74, 103)); // Warna Independence (#4B4A67)
 
         JLabel titleLabel = new JLabel("Sistem Booking Hotel", JLabel.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        titleLabel.setForeground(Color.WHITE); // Teks jadi putih untuk kontras
 
         JPanel buttonPanel = getjPanel();
+        buttonPanel.setBackground(new Color(75, 74, 103)); // Pastikan warna panel tombol sama
 
         mainPanel.add(titleLabel, BorderLayout.NORTH);
         mainPanel.add(buttonPanel, BorderLayout.CENTER);
@@ -179,6 +189,7 @@ public class HotelBookingSystem {
         }
         JScrollPane scrollPane = new JScrollPane(table);
 
+        // Panel tombol
         JPanel buttonPanel = new JPanel();
         JButton addButton = new JButton("Tambah");
         JButton editButton = new JButton("Edit");
@@ -616,14 +627,6 @@ public class HotelBookingSystem {
         kamarFrame.setVisible(true);
     }
 
-    private static void calculateTotal() {
-        int total = 0;
-        for (String[] kamar : kamarList) {
-            total += Integer.parseInt(kamar[4]);
-        }
-        JOptionPane.showMessageDialog(null, "Total Harga Kamar: Rp " + total);
-    }
-
     private static void showPemesananList() {
         JFrame pemesananFrame = new JFrame("Data Pemesanan");
         pemesananFrame.setSize(800, 400);
@@ -830,5 +833,12 @@ public class HotelBookingSystem {
         pemesananFrame.add(scrollPane, BorderLayout.CENTER);
         pemesananFrame.add(buttonPanel, BorderLayout.SOUTH);
         pemesananFrame.setVisible(true);
+    }
+    private static void calculateTotal() {
+        int total = 0;
+        for (String[] kamar : kamarList) {
+            total += Integer.parseInt(kamar[4]);
+        }
+        JOptionPane.showMessageDialog(null, "Total Harga Kamar: Rp " + total);
     }
 }
