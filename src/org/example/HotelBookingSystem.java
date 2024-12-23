@@ -8,15 +8,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class HotelBookingSystem {
-    private static final ArrayList<String[]> kamarList = new ArrayList<>();
-    private static final ArrayList<String[]> tamuList = new ArrayList<>();
-    private static final ArrayList<String[]> pemesananList = new ArrayList<>();
+    protected static final ArrayList<String[]> kamarList = new ArrayList<>();
+    protected static final ArrayList<String[]> tamuList = new ArrayList<>();
+    protected static final ArrayList<String[]> pemesananList = new ArrayList<>();
 
     public static void main(String[] args) {
         loadDataFromFile();
         SwingUtilities.invokeLater(HotelBookingSystem::showLoginScreen);
     }
-    private static void saveDataToFile() {
+    protected static void saveDataToFile() {
         try (PrintWriter writer = new PrintWriter(new FileWriter("hotel_data.txt"))) {
             writer.println("Data Kamar:");
             for (String[] kamar : kamarList) {
@@ -39,7 +39,7 @@ public class HotelBookingSystem {
         }
     }
 
-    private static void loadDataFromFile() {
+    protected static void loadDataFromFile() {
         File file = new File("hotel_data.txt");
         if (!file.exists()) {
             return;
@@ -177,7 +177,7 @@ public class HotelBookingSystem {
         return buttonPanel;
     }
 
-    private static void showTamuList() {
+    protected static void showTamuList() {
         JFrame tamuFrame = new JFrame("Data Tamu");
         tamuFrame.setSize(800, 400);
 
@@ -350,7 +350,7 @@ public class HotelBookingSystem {
     }
 
 
-    private static void showKamarList() {
+    protected static void showKamarList() {
         JFrame kamarFrame = new JFrame("Data Kamar");
         kamarFrame.setSize(800, 400);
 
@@ -627,7 +627,7 @@ public class HotelBookingSystem {
         kamarFrame.setVisible(true);
     }
 
-    private static void showPemesananList() {
+    protected static void showPemesananList() {
         JFrame pemesananFrame = new JFrame("Data Pemesanan");
         pemesananFrame.setSize(800, 400);
 
